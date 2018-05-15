@@ -73,8 +73,8 @@ class Network(object):
         # 对于每个样本输入都计算梯度，并记录下来
         for x, y in batch:
             delta_weights, delta_biases = self.back_propagation(x, y)
-            sum_delta_weights += delta_weights
-            sum_delta_biases += delta_biases
+            sum_delta_weights = [s+d for s, d in zip(sum_delta_weights, delta_weights)]
+            sum_delta_biases = [s+d for s, d in zip(sum_delta_biases, delta_biases)]
         # 根据上述梯度的平均值更新参数
         batch_size = len(batch)
         to_subtract_weights = [learning_rate*s/batch_size for s in sum_delta_weights]
@@ -95,13 +95,13 @@ class Network(object):
         # 计算输出层的误差
         delta = utils.cross_entropy_derivative(activations[-1], y) * utils.sigmoid_derivative(zs[-1])
         # 后向传播误差
-        delta_weights[-1] = delta
-        delta_biases[-1] = np.dot(delta, activations[-2].transpose())
+        delta_weights[-1] = np.dot(delta, activations[-2].transpose())
+        delta_biases[-1] = delta
         for last in range(2, self.num_layers):
             z = zs[-last]
             delta = np.dot(self.weights[-last+1].transpose(), delta) * utils.sigmoid_derivative(z)
-            delta_biases[-last] = delta
             delta_weights[-last] = np.dot(delta, activations[-last-1].transpose())
+            delta_biases[-last] = delta
 
         return delta_weights, delta_biases
 
