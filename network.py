@@ -1,5 +1,6 @@
 # coding=utf-8
 import numpy as np
+import utils
 
 
 class Network(object):
@@ -30,7 +31,7 @@ class Network(object):
             z = np.dot(w, activation) + b
             zs.append(z)
             # 以Sigmoid作为激活函数
-            activation = sigmoid(z)
+            activation = utils.sigmoid(z)
             activations.append(activation)
 
         return zs, activations
@@ -83,9 +84,18 @@ class Network(object):
         :param y: 样本的标签
         :return: 一个tuple，包括weights和biases的梯度
         """
-        pass
+        zs, activations = self.feed_forward(x)
+        delta_weights = np.zeros(self.weights.shape)
+        delta_biases = np.zeros(self.biases.shape)
+        # 计算输出层的误差
+        delta = utils.cross_entropy_derivative(activations[-1], y) * utils.sigmoid_derivative(zs[-1])
+        # 后向传播误差
+        delta_weights[-1] = delta
+        delta_biases[-1] = np.dot(delta, activations[-2].transpose())
+        for last in range(2, self.num_layers):
+            z = zs[-last]
+            delta = np.dot(self.weights[-last+1].transpose(), delta) * utils.sigmoid_derivative(z)
+            delta_biases[-last] = delta
+            delta_weights[-last] = np.dot(delta, activations[-last-1].transpose())
 
-
-def sigmoid(z):
-    """给定输入z，计算Sigmoid(z)"""
-    return 1.0/(1.0+np.exp(-z))
+        return delta_weights, delta_biases
