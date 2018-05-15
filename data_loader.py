@@ -1,0 +1,63 @@
+# coding=utf-8
+import struct
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 从训练数据集中划分出验证集
+num_training_set = 50000
+num_validation_set = 10000
+num_test_set = 10000
+
+training_images_path = 'data/train-images-idx3-ubyte'
+training_labels_path = 'data/train-labels-idx1-ubyte'
+validation_images_path = training_images_path
+validation_labels_path = training_labels_path
+test_images_path = 'data/t10k-images-idx3-ubyte'
+test_labels_path = 'data/t10k-labels-idx1-ubyte'
+
+images_data_header = '>IIII'
+labels_data_header = '>II'
+images_data_pattern = '>784B'
+labels_data_pattern = '>1B'
+
+
+def load_images(file_path, num_images):
+    with open(file_path, 'rb') as f:
+        buffer = f.read()
+        # 跳过头部
+        offset = struct.calcsize(images_data_header)
+        images = []
+        for i in range(num_images):
+            image = struct.unpack_from(images_data_pattern, buffer, offset)
+            images.append(image)
+            offset += struct.calcsize(images_data_pattern)
+
+        return images
+
+
+def load_labels(file_path, num_labels):
+    with open(file_path, 'rb') as f:
+        buffer = f.read()
+        # 跳过头部
+        offset = struct.calcsize(labels_data_header)
+        labels = []
+        for i in range(num_labels):
+            label = struct.unpack_from(labels_data_pattern, buffer, offset)[0]
+            labels.append(label)
+            offset += struct.calcsize(labels_data_pattern)
+
+        return labels
+
+
+def test():
+    images = load_images(training_images_path, num_training_set)
+    labels = load_labels(training_labels_path, num_training_set)
+    for i in range(1):
+        image = np.reshape(images[i], (28, 28))
+        plt.imshow(image, cmap='gray')
+        print('label:', labels[i])
+        plt.show()
+
+
+if __name__ == '__main__':
+    test()
