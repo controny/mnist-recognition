@@ -4,12 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 从训练数据集中划分出验证集
-# num_training_set = 50000
-# num_validation_set = 10000
-# num_test_set = 10000
-num_training_set = 5
-num_validation_set = 5
-num_test_set = 5
+num_training_set = 500
+num_validation_set = 100
+num_test_set = 100
 
 training_images_path = 'data/train-images-idx3-ubyte'
 training_labels_path = 'data/train-labels-idx1-ubyte'
@@ -53,7 +50,7 @@ def load_images(file_path, num_images):
         images = []
         for i in range(num_images):
             image = struct.unpack_from(images_data_pattern, buffer, offset)
-            image = np.array(image)
+            image = np.reshape(image, [784, 1])
             images.append(image)
             offset += struct.calcsize(images_data_pattern)
 
@@ -67,7 +64,10 @@ def load_labels(file_path, num_labels):
         offset = struct.calcsize(labels_data_header)
         labels = []
         for i in range(num_labels):
-            label = struct.unpack_from(labels_data_pattern, buffer, offset)[0]
+            digit = struct.unpack_from(labels_data_pattern, buffer, offset)[0]
+            # 转化为one-hot vector
+            label = np.zeros([10, 1])
+            label[digit] = 1.0
             labels.append(label)
             offset += struct.calcsize(labels_data_pattern)
 

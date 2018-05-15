@@ -8,7 +8,7 @@ def train():
     # layers = [784, 100, 100, 10]
     layers = [784, 20, 10]
     net = network.Network(layers)
-    net.optimize(training_data, validation_data, 30, 1, 100, 0.005)
+    net.optimize(training_data, validation_data, 30, 1, 10, 0.005)
 
 
 if __name__ == '__main__':

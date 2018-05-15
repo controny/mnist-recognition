@@ -19,7 +19,7 @@ class Network(object):
 
     def feed_forward(self, x):
         """
-        前向传播，用于back propagation计算梯度，也用于得出模型的预测结果
+        前向传播，用于back propagation计算梯度
         :param x: 模型的输入
         :return: 一个tuple，包括模型中所有的z值和activation
         """
@@ -53,10 +53,13 @@ class Network(object):
             for k in range(0, len(training_data), batch_size):
                 batch = training_data[k:k+batch_size]
                 self.update_parameters(batch, learning_rate)
+            # 验证准确率
             if i % validating_gap == 0:
                 num_correct = self.accuracy(validation_data)
                 accuracy = 1.0 * num_correct / len(validation_data)
                 print('Epoch %d: %f (%d / %d)' % (i, accuracy, num_correct, len(validation_data)))
+            else:
+                print('Epoch %d finished' % i)
 
     def update_parameters(self, batch, learning_rate):
         """
@@ -74,10 +77,10 @@ class Network(object):
             sum_delta_biases += delta_biases
         # 根据上述梯度的平均值更新参数
         batch_size = len(batch)
-        average_delta_weights = sum_delta_weights / batch_size
-        average_delta_biases = sum_delta_biases / batch_size
-        self.weights -= average_delta_weights * learning_rate
-        self.biases -= average_delta_biases * learning_rate
+        to_subtract_weights = [learning_rate*s/batch_size for s in sum_delta_weights]
+        to_subtract_biases = [learning_rate*s/batch_size for s in sum_delta_biases]
+        self.weights = [w-t for w, t in zip(self.weights, to_subtract_weights)]
+        self.biases = [b-t for b, t in zip(self.biases, to_subtract_biases)]
 
     def back_propagation(self, x, y):
         """
@@ -102,13 +105,24 @@ class Network(object):
 
         return delta_weights, delta_biases
 
+    def predict(self, x):
+        """
+        给定输入，给出模型的预测结果
+        :param x: 模型的输入，
+        :return: 模型的输出
+        """
+        for w, b in zip(self.weights, self.biases):
+            x = utils.sigmoid(np.dot(w, x) + b)
+
+        return x
+
     def accuracy(self, data):
         """
         给定测试数据，计算模型预测正确的个数
         :param data: 用于测试的验证数据集或测试数据集
         :return: 预测正确的个数
         """
-        results = [(np.argmax(self.feed_forward(x)), y) for (x, y) in data]
+        results = [(np.argmax(self.predict(x)), np.argmax(y)) for (x, y) in data]
         return sum(int(x == y) for (x, y) in results)
 
     def total_loss(self, data):
