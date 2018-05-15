@@ -14,8 +14,8 @@ class Network(object):
         self.sizes = sizes
         # 随机初始化参数
         # 第1层为输入，故从sizes[1]开始初始化
-        self.biases = np.asarray([np.random.randn(j, 1) for j in sizes[1:]])
-        self.weights = np.asarray([np.random.randn(j, i) for i, j in zip(sizes[:-1], sizes[1:])])
+        self.biases = [np.random.randn(j, 1) for j in sizes[1:]]
+        self.weights = [np.random.randn(j, i) for i, j in zip(sizes[:-1], sizes[1:])]
 
     def feed_forward(self, x):
         """
@@ -65,8 +65,8 @@ class Network(object):
         :param learning_rate: 训练的学习率
         """
         # 累积的梯度
-        sum_delta_weights = np.zeros(self.weights.shape)
-        sum_delta_biases = np.zeros(self.biases.shape)
+        sum_delta_weights = [np.zeros(e.shape) for e in self.weights]
+        sum_delta_biases = [np.zeros(e.shape) for e in self.biases]
         # 对于每个样本输入都计算梯度，并记录下来
         for x, y in batch:
             delta_weights, delta_biases = self.back_propagation(x, y)
@@ -87,8 +87,8 @@ class Network(object):
         :return: 一个tuple，包括weights和biases的梯度
         """
         zs, activations = self.feed_forward(x)
-        delta_weights = np.zeros(self.weights.shape)
-        delta_biases = np.zeros(self.biases.shape)
+        delta_weights = [np.zeros(e.shape) for e in self.weights]
+        delta_biases = [np.zeros(e.shape) for e in self.biases]
         # 计算输出层的误差
         delta = utils.cross_entropy_derivative(activations[-1], y) * utils.sigmoid_derivative(zs[-1])
         # 后向传播误差

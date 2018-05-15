@@ -4,9 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 从训练数据集中划分出验证集
-num_training_set = 50000
-num_validation_set = 10000
-num_test_set = 10000
+# num_training_set = 50000
+# num_validation_set = 10000
+# num_test_set = 10000
+num_training_set = 5
+num_validation_set = 5
+num_test_set = 5
 
 training_images_path = 'data/train-images-idx3-ubyte'
 training_labels_path = 'data/train-labels-idx1-ubyte'
@@ -21,6 +24,27 @@ images_data_pattern = '>784B'
 labels_data_pattern = '>1B'
 
 
+def load_all_data():
+    """
+    一次性载入所有数据，包括训练集、验证集、测试集
+    :return: 一个tuple，包括训练集、验证集、测试集
+    """
+    training_data = list(zip(
+        load_images(training_images_path, num_training_set),
+        load_labels(training_labels_path, num_training_set)
+    ))
+    validation_data = list(zip(
+        load_images(validation_images_path, num_validation_set),
+        load_labels(validation_labels_path, num_validation_set)
+    ))
+    test_data = list(zip(
+        load_images(test_images_path, num_test_set),
+        load_labels(test_labels_path, num_test_set)
+    ))
+
+    return training_data, validation_data, test_data
+
+
 def load_images(file_path, num_images):
     with open(file_path, 'rb') as f:
         buffer = f.read()
@@ -29,6 +53,7 @@ def load_images(file_path, num_images):
         images = []
         for i in range(num_images):
             image = struct.unpack_from(images_data_pattern, buffer, offset)
+            image = np.array(image)
             images.append(image)
             offset += struct.calcsize(images_data_pattern)
 
