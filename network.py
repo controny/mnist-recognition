@@ -54,7 +54,9 @@ class Network(object):
                 batch = training_data[k:k+batch_size]
                 self.update_parameters(batch, learning_rate)
             if i % validating_gap == 0:
-                print('Epoch %d: %f (%d / %d)')
+                num_correct = self.accuracy(validation_data)
+                accuracy = 1.0 * num_correct / len(validation_data)
+                print('Epoch %d: %f (%d / %d)' % (i, accuracy, num_correct, len(validation_data)))
 
     def update_parameters(self, batch, learning_rate):
         """
@@ -74,8 +76,8 @@ class Network(object):
         batch_size = len(batch)
         average_delta_weights = sum_delta_weights / batch_size
         average_delta_biases = sum_delta_biases / batch_size
-        self.weights -= average_delta_weights
-        self.biases -= average_delta_biases
+        self.weights -= average_delta_weights * learning_rate
+        self.biases -= average_delta_biases * learning_rate
 
     def back_propagation(self, x, y):
         """
@@ -99,3 +101,25 @@ class Network(object):
             delta_weights[-last] = np.dot(delta, activations[-last-1].transpose())
 
         return delta_weights, delta_biases
+
+    def accuracy(self, data):
+        """
+        给定测试数据，计算模型预测正确的个数
+        :param data: 用于测试的验证数据集或测试数据集
+        :return: 预测正确的个数
+        """
+        results = [(np.argmax(self.feed_forward(x)), y) for (x, y) in data]
+        return sum(int(x == y) for (x, y) in results)
+
+    def total_loss(self, data):
+        """
+        给定测试数据，计算模型的loss
+        :param data: 用于测试的验证数据集或测试数据集
+        :return: 模型的loss
+        """
+        loss = 0
+        for x, y in data:
+            a = self.feed_forward(x)
+            loss += utils.cross_entropy(a, y) / len(data)
+
+        return loss
