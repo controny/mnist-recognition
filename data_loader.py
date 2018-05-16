@@ -51,24 +51,26 @@ def load_data_for_testing():
     return test_data
 
 
-def load_images(model_path, num_images):
-    with open(model_path, 'rb') as f:
+def load_images(file_path, num_images, binaryzation=True):
+    with open(file_path, 'rb') as f:
         buffer = f.read()
         # 跳过头部
         offset = struct.calcsize(images_data_header)
         images = []
         for i in range(num_images):
             image = struct.unpack_from(images_data_pattern, buffer, offset)
-            # 注意进行二值化处理
-            image = np.clip(np.reshape(image, [784, 1]), 0.0, 1.0)
+            image = np.reshape(image, [784, 1])
+            if binaryzation:
+                # 进行二值化处理
+                image = np.clip(image, 0.0, 1.0)
             images.append(image)
             offset += struct.calcsize(images_data_pattern)
 
         return images
 
 
-def load_labels(model_path, num_labels):
-    with open(model_path, 'rb') as f:
+def load_labels(file_path, num_labels):
+    with open(file_path, 'rb') as f:
         buffer = f.read()
         # 跳过头部
         offset = struct.calcsize(labels_data_header)
@@ -85,12 +87,11 @@ def load_labels(model_path, num_labels):
 
 
 def test():
-    images = load_images(training_images_path, num_training_set)
-    labels = load_labels(training_labels_path, num_training_set)
+    images = load_images(test_images_path, num_test_set)
+    labels = load_labels(test_labels_path, num_test_set)
     for i in range(1):
         image = np.reshape(images[i], (28, 28))
         plt.imshow(image, cmap='gray')
-        print('label:', labels[i])
         plt.show()
 
 
