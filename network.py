@@ -17,6 +17,7 @@ class Network(object):
         # 第1层为输入，故从sizes[1]开始初始化
         self.biases = [np.random.randn(j, 1) for j in sizes[1:]]
         self.weights = [np.random.randn(j, i) for i, j in zip(sizes[:-1], sizes[1:])]
+        self.train_error = 0.0
 
     def feed_forward(self, x):
         """
@@ -60,7 +61,9 @@ class Network(object):
                 accuracy = 1.0 * num_correct / len(validation_data)
                 print('Epoch %d: %f (%d / %d)' % (i, accuracy, num_correct, len(validation_data)))
             else:
-                print('Epoch %d finished' % i)
+                print('Epoch %d: finished' % i)
+        self.train_error = self.total_loss(validation_data)
+        print('Train error: %f' % self.train_error)
 
     def update_parameters(self, batch, learning_rate):
         """
@@ -132,9 +135,9 @@ class Network(object):
         :param data: 用于测试的验证数据集或测试数据集
         :return: 模型的loss
         """
-        loss = 0
+        loss = 0.0
         for x, y in data:
-            a = self.feed_forward(x)
+            a = self.predict(x)
             loss += utils.cross_entropy(a, y) / len(data)
 
         return loss
@@ -148,6 +151,7 @@ class Network(object):
             'sizes': self.sizes,
             'weights': [w.tolist() for w in self.weights],
             'biases': [b.tolist() for b in self.biases],
+            'train_error': self.train_error
         }
         with open(file_path, 'w') as f:
             json.dump(data, f)
@@ -164,5 +168,6 @@ class Network(object):
         net = Network(data['sizes'])
         net.weights = [np.array(w) for w in data['weights']]
         net.biases = [np.array(b) for b in data['biases']]
+        net.train_error = data['train_error']
 
         return net
