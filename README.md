@@ -34,5 +34,5 @@ python test.py
 ```
 测试指定模型：
 ```
-python test.py MyModel
+python test.py --model_name MyModel
 ```

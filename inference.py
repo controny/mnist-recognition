@@ -2,22 +2,13 @@
 from PIL import Image
 import sys
 import os
+import getopt
 import numpy as np
 import network
 from train import log_dir
 
 
-def inference():
-    images_dir = 'images/'
-    # 设置命令行参数更改图片目录
-    if len(sys.argv) == 2:
-        images_dir = sys.argv[1]
-
-    # 载入模型
-    model_name = 'model'
-    model_path = os.path.join(log_dir, model_name+'.json')
-    net = network.Network.load(model_path)
-
+def inference(net, images_dir):
     file_list = os.listdir(images_dir)
     for file_path in file_list:
         # 打开图片并转为灰度图
@@ -30,5 +21,27 @@ def inference():
         print('%s: %s' % (file_path, prediction))
 
 
+def main():
+    model_name = 'model'
+    images_dir = 'images/'
+    # 设置命令行参数更改model_name及images_dir
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], '', ['model_name=', 'images_dir='])
+    except getopt.GetoptError as err:
+        print('ERROR: %s!' % err)
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '--model_name':
+            model_name = arg
+        elif opt == '--images_dir':
+            images_dir = arg
+
+    # 载入模型
+    model_path = os.path.join(log_dir, model_name+'.json')
+    net = network.Network.load(model_path)
+
+    inference(net, images_dir)
+
+
 if __name__ == '__main__':
-    inference()
+    main()
