@@ -18,6 +18,7 @@ class Network(object):
         self.biases = [np.random.randn(j, 1) for j in sizes[1:]]
         self.weights = [np.random.randn(j, i) for i, j in zip(sizes[:-1], sizes[1:])]
         self.train_error = 0.0
+        self.reg_lambda = 0.0
 
     def feed_forward(self, x):
         """
@@ -38,7 +39,8 @@ class Network(object):
 
         return zs, activations
 
-    def optimize(self, training_data, validation_data, epochs, validating_gap, batch_size, learning_rate):
+    def optimize(self, training_data, validation_data, epochs, validating_gap, batch_size, learning_rate,
+                 reg_lambda=0.0):
         """
         使用Stochastic Gradient Descent优化模型
         :param training_data: 训练数据集
@@ -47,7 +49,9 @@ class Network(object):
         :param validating_gap: 验证的间隔步数
         :param batch_size: 每个训练batch的大小
         :param learning_rate: 训练的学习率
+        :param reg_lambda: 正则化项的lambda参数，默认为0表示不加入正则化项
         """
+        self.reg_lambda = reg_lambda
         for i in range(epochs):
             # 随机打乱训练数据
             np.random.shuffle(training_data)
@@ -83,7 +87,9 @@ class Network(object):
         batch_size = len(batch)
         to_subtract_weights = [learning_rate*s/batch_size for s in sum_delta_weights]
         to_subtract_biases = [learning_rate*s/batch_size for s in sum_delta_biases]
-        self.weights = [w-t for w, t in zip(self.weights, to_subtract_weights)]
+        # weights的更新考虑L2正则化
+        self.weights = [(1-learning_rate*self.reg_lambda/batch_size)*w-t
+                        for w, t in zip(self.weights, to_subtract_weights)]
         self.biases = [b-t for b, t in zip(self.biases, to_subtract_biases)]
 
     def back_propagation(self, x, y):
@@ -139,6 +145,9 @@ class Network(object):
         for x, y in data:
             a = self.predict(x)
             loss += utils.cross_entropy(a, y) / len(data)
+        # 加上L2正则化项
+        loss += 0.5*(self.reg_lambda/len(data))*sum(
+            np.linalg.norm(w)**2 for w in self.weights)
 
         return loss
 
@@ -151,7 +160,8 @@ class Network(object):
             'sizes': self.sizes,
             'weights': [w.tolist() for w in self.weights],
             'biases': [b.tolist() for b in self.biases],
-            'train_error': self.train_error
+            'train_error': self.train_error,
+            'reg_lambda': self.reg_lambda
         }
         with open(file_path, 'w') as f:
             json.dump(data, f)
@@ -169,5 +179,6 @@ class Network(object):
         net.weights = [np.array(w) for w in data['weights']]
         net.biases = [np.array(b) for b in data['biases']]
         net.train_error = data['train_error']
+        net.reg_lambda = data['reg_lambda']
 
         return net
