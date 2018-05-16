@@ -16,7 +16,7 @@ class Network(object):
         # 随机初始化参数
         # 第1层为输入，故从sizes[1]开始初始化
         self.biases = [np.random.randn(j, 1) for j in sizes[1:]]
-        self.weights = [np.random.randn(j, i) for i, j in zip(sizes[:-1], sizes[1:])]
+        self.weights = [np.random.randn(j, i)/np.sqrt(i) for i, j in zip(sizes[:-1], sizes[1:])]
         self.train_error = 0.0
         self.reg_lambda = 0.0
 
