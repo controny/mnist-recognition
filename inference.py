@@ -10,6 +10,7 @@ from train import log_dir
 
 def inference(net, images_dir):
     file_list = os.listdir(images_dir)
+    print('Picture\t\t\tPrediction')
     for file_path in file_list:
         # 打开图片并转为灰度图
         image = Image.open(os.path.join(images_dir, file_path)).convert('L')
@@ -18,7 +19,7 @@ def inference(net, images_dir):
         image = np.reshape(image, [784, 1])
         image = np.clip(image, 0.0, 1.0)
         prediction = np.argmax(net.predict(image))
-        print('%s: %s' % (file_path, prediction))
+        print('%s:\t\t\t%s' % (file_path, prediction))
 
 
 def main():
