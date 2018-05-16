@@ -151,10 +151,10 @@ class Network(object):
 
         return loss
 
-    def save(self, file_path):
+    def save(self, model_path):
         """
         保存模型为json格式
-        :param file_path: 保存的文件名
+        :param model_path: 保存的文件路径
         """
         data = {
             'sizes': self.sizes,
@@ -163,17 +163,17 @@ class Network(object):
             'train_error': self.train_error,
             'reg_lambda': self.reg_lambda
         }
-        with open(file_path, 'w') as f:
+        with open(model_path, 'w') as f:
             json.dump(data, f)
 
     @staticmethod
-    def load(file_path):
+    def load(model_path):
         """
         用于从文件中载入模型的静态方法
-        :param file_path: 模型文件的路径
+        :param model_path: 模型文件的路径
         :return: 载入的模型
         """
-        with open(file_path, 'r') as f:
+        with open(model_path, 'r') as f:
             data = json.load(f)
         net = Network(data['sizes'])
         net.weights = [np.array(w) for w in data['weights']]

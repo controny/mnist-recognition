@@ -51,8 +51,8 @@ def load_data_for_testing():
     return test_data
 
 
-def load_images(file_path, num_images):
-    with open(file_path, 'rb') as f:
+def load_images(model_path, num_images):
+    with open(model_path, 'rb') as f:
         buffer = f.read()
         # 跳过头部
         offset = struct.calcsize(images_data_header)
@@ -67,8 +67,8 @@ def load_images(file_path, num_images):
         return images
 
 
-def load_labels(file_path, num_labels):
-    with open(file_path, 'rb') as f:
+def load_labels(model_path, num_labels):
+    with open(model_path, 'rb') as f:
         buffer = f.read()
         # 跳过头部
         offset = struct.calcsize(labels_data_header)

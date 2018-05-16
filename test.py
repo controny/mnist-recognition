@@ -1,13 +1,21 @@
 # coding=utf-8
 import data_loader
 import network
-import train
+import sys
+import os
+from train import log_dir
 
 
 def test():
+    model_name = 'model'
+    # 设置命令行参数更改model_name
+    if len(sys.argv) == 2:
+        model_name = sys.argv[1]
+
     # 载入数据和模型
     test_data = data_loader.load_data_for_testing()
-    net = network.Network.load(train.file_path)
+    model_path = os.path.join(log_dir, model_name+'.json')
+    net = network.Network.load(model_path)
     print('Model loaded')
     print('Train error: %f' % net.train_error)
 
