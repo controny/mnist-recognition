@@ -17,9 +17,7 @@ def train(net, epochs, validating_gap, batch_size, learning_rate, reg_lambda):
 def save_model(net, model_name):
     if not os.path.exists(log_dir):
         os.mkdir(log_dir)
-    model_path = os.path.join(log_dir, model_name+'.json')
-    net.save(model_path)
-    print('Model saved at %s' % model_path)
+    net.save(log_dir, model_name)
 
 
 def main():

@@ -2,6 +2,7 @@
 import numpy as np
 import utils
 import json
+import os
 
 
 class Network(object):
@@ -19,6 +20,7 @@ class Network(object):
         self.weights = [np.random.randn(j, i)/np.sqrt(i) for i, j in zip(sizes[:-1], sizes[1:])]
         self.train_error = 0.0
         self.reg_lambda = 0.0
+        self.loss_summary = []
 
     def feed_forward(self, x):
         """
@@ -64,6 +66,9 @@ class Network(object):
                 num_correct = self.accuracy(validation_data)
                 accuracy = 1.0 * num_correct / len(validation_data)
                 print('Epoch %d: %f (%d / %d)' % (i, accuracy, num_correct, len(validation_data)))
+                # 记录loss以便分析
+                loss = {i: self.total_loss(validation_data)}
+                self.loss_summary.append(loss)
             else:
                 print('Epoch %d: finished' % i)
         self.train_error = self.total_loss(validation_data)
@@ -151,11 +156,14 @@ class Network(object):
 
         return loss
 
-    def save(self, model_path):
+    def save(self, log_dir, model_name):
         """
         保存模型为json格式
-        :param model_path: 保存的文件路径
+        :param log_dir: 保存的日志文件目录
+        :param model_name: 模型名称
         """
+        model_path = os.path.join(log_dir, model_name+'.json')
+        summary_path = os.path.join(log_dir, model_name+'-summary.json')
         data = {
             'sizes': self.sizes,
             'weights': [w.tolist() for w in self.weights],
@@ -165,6 +173,14 @@ class Network(object):
         }
         with open(model_path, 'w') as f:
             json.dump(data, f)
+        print('Model saved at %s' % model_path)
+
+        data = {
+            'summary': self.loss_summary
+        }
+        with open(summary_path, 'w') as f:
+            json.dump(data, f)
+        print('Summary saved at %s' % summary_path)
 
     @staticmethod
     def load(model_path):
