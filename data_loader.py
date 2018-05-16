@@ -21,10 +21,10 @@ images_data_pattern = '>784B'
 labels_data_pattern = '>1B'
 
 
-def load_all_data():
+def load_data_for_training():
     """
-    一次性载入所有数据，包括训练集、验证集、测试集
-    :return: 一个tuple，包括训练集、验证集、测试集
+    载入训练所需的数据，包括训练集、验证集
+    :return: 一个tuple，包括训练集、验证集
     """
     training_data = list(zip(
         load_images(training_images_path, num_training_set),
@@ -34,12 +34,21 @@ def load_all_data():
         load_images(validation_images_path, num_validation_set),
         load_labels(validation_labels_path, num_validation_set)
     ))
+
+    return training_data, validation_data
+
+
+def load_data_for_testing():
+    """
+    载入测试集
+    :return: 测试集数据
+    """
     test_data = list(zip(
         load_images(test_images_path, num_test_set),
         load_labels(test_labels_path, num_test_set)
     ))
 
-    return training_data, validation_data, test_data
+    return test_data
 
 
 def load_images(file_path, num_images):

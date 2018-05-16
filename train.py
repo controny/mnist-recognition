@@ -2,16 +2,16 @@
 import data_loader
 import network
 
+file_path = 'data/model.json'
+
 
 def train():
-    training_data, validation_data, test_data = data_loader.load_all_data()
+    training_data, validation_data= data_loader.load_data_for_training()
     layers = [784, 100, 10]
     net = network.Network(layers)
-    net.optimize(training_data, validation_data, 30, 1, 10, 1.0)
-    # 测试
-    num_correct = net.accuracy(test_data)
-    accuracy = 1.0 * num_correct / len(test_data)
-    print('Final: %f (%d / %d)' % (accuracy, num_correct, len(test_data)))
+    net.optimize(training_data, validation_data, 1, 1, 10, 1.0)
+    net.save(file_path)
+    print('Model saved at %s' % file_path)
 
 
 if __name__ == '__main__':

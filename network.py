@@ -1,6 +1,7 @@
 # coding=utf-8
 import numpy as np
 import utils
+import json
 
 
 class Network(object):
@@ -137,3 +138,31 @@ class Network(object):
             loss += utils.cross_entropy(a, y) / len(data)
 
         return loss
+
+    def save(self, file_path):
+        """
+        保存模型为json格式
+        :param file_path: 保存的文件名
+        """
+        data = {
+            'sizes': self.sizes,
+            'weights': [w.tolist() for w in self.weights],
+            'biases': [b.tolist() for b in self.biases],
+        }
+        with open(file_path, 'w') as f:
+            json.dump(data, f)
+
+    @staticmethod
+    def load(file_path):
+        """
+        用于从文件中载入模型的静态方法
+        :param file_path: 模型文件的路径
+        :return: 载入的模型
+        """
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        net = Network(data['sizes'])
+        net.weights = [np.array(w) for w in data['weights']]
+        net.biases = [np.array(b) for b in data['biases']]
+
+        return net
