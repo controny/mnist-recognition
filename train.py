@@ -8,7 +8,21 @@ import os
 log_dir = 'log/'
 
 
-def train():
+def train(net, epochs, validating_gap, batch_size, learning_rate, reg_lambda):
+    training_data, validation_data = data_loader.load_data_for_training()
+    print('Start to train')
+    net.optimize(training_data, validation_data, epochs, validating_gap, batch_size, learning_rate, reg_lambda)
+
+
+def save_model(net, model_name):
+    if not os.path.exists(log_dir):
+        os.mkdir(log_dir)
+    model_path = os.path.join(log_dir, model_name+'.json')
+    net.save(model_path)
+    print('Model saved at %s' % model_path)
+
+
+def main():
     epochs = 30
     validating_gap = 5
     batch_size = 10
@@ -42,18 +56,11 @@ def train():
         elif opt == '--model_name':
             model_name = arg
 
-    training_data, validation_data = data_loader.load_data_for_training()
     layers = [784, 100, 10]
     net = network.Network(layers)
-    print('Start to train')
-    net.optimize(training_data, validation_data, epochs, validating_gap, batch_size, learning_rate, reg_lambda)
-
-    if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
-    model_path = os.path.join(log_dir, model_name+'.json')
-    net.save(model_path)
-    print('Model saved at %s' % model_path)
+    train(net, epochs, validating_gap, batch_size, learning_rate, reg_lambda)
+    save_model(net, model_name)
 
 
 if __name__ == '__main__':
-    train()
+    main()
