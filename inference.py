@@ -5,12 +5,15 @@ import os
 import getopt
 import numpy as np
 import network
+import time
 from train import log_dir
 
 
 def inference(net, images_dir):
     file_list = os.listdir(images_dir)
     print('Picture\t\t\tPrediction')
+    start_time = time.time()
+    prediction_counts = 0
     for file_path in file_list:
         # 只处理图片文件
         extension = os.path.splitext(file_path)[1]
@@ -25,8 +28,13 @@ def inference(net, images_dir):
             image = np.clip(image, 0.0, 1.0)
             prediction = np.argmax(net.predict(image))
             print('%s:\t\t\t%s' % (file_path, prediction))
+            prediction_counts += 1
         except Exception as err:
             print('%s:\t\t\tfail to predict: "%s"' % (file_path, err))
+
+    end_time = time.time()
+    average_time = (end_time-start_time)/prediction_counts
+    print('Average time in prediction: %fs per image' % average_time)
 
 
 def main():
