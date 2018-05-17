@@ -31,12 +31,12 @@ python train.py --epochs 50 --validating_gap 5 --batch_size 10 --learning_rate 1
 ```
 各项参数的含义如下：
 
-- `epochs`: 迭代的轮数
-- `validating_gap`: 进行验证（会输出当前的准确率并记录当前的loss）的间隔轮数
-- `batch_size`: 每个训练batch的大小
-- `learning_rate`: 学习率
-- `reg_lambda`: 正则化项的lambda参数
-- `model_name`: 模型的名称
+- `epochs`: 迭代的轮数，默认为50
+- `validating_gap`: 进行验证（会输出当前的准确率并记录当前的loss）的间隔轮数，默认为1
+- `batch_size`: 每个训练batch的大小，默认为10
+- `learning_rate`: 学习率，默认为1.0
+- `reg_lambda`: 正则化项的lambda参数, 默认为0.0
+- `model_name`: 模型的名称，默认为model
 
 ### Test
 测试默认模型：

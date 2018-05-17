@@ -21,8 +21,8 @@ def save_model(net, model_name):
 
 
 def main():
-    epochs = 30
-    validating_gap = 5
+    epochs = 50
+    validating_gap = 1
     batch_size = 10
     learning_rate = 1.0
     reg_lambda = 0.0
